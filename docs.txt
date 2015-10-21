@@ -1,0 +1,113 @@
+Filters
+=========
+The default values displayed in the Admin UI customiser can be modified via a selection of filters.
+
+Panel:
+
+adminizr_priority - Panel priority, default: 30
+add_filter ( 'adminizr_priority', set_adminizr_priority, 10, 1);
+function set_adminizr_priority ( $default ) {
+	return 40; // put lower down order
+}
+
+adminizr_title - Panel title, default: Admin Customizer
+add_filter( 'adminizr_title',set_adminizr_title, 10, 1);
+function set_adminizr_title ( $title ) {
+	return __( 'Adminizr', 'wordpress' ); 
+}
+
+adminizr_description - Panel description, default: Customize the admin interface layout
+add_filter( 'adminizr_description', set_adminizr_description, 10, 1);
+function set_adminizr_title ( $desc ) {
+	return __( 'Customize your Admin UI', 'wordpress' ); 
+}
+
+Section:
+Each section has a filter for priority & title
+
+add_filter( 'adminizr_section_priority', 'set_adminizr_section_priority', 10, 2 );
+function set_adminizr_section_priority( $priority, $section = '' ) {
+
+	// basic check, can also add check against set section names
+	if ( empty( $section ) ) { return $priority; } 
+
+	//check section name
+	switch( $section ) {
+		case 'roles':
+			return 5;
+		case 'theme':
+			return 10;
+		case 'header':
+			return 15;
+		case 'footer':
+			return 20;
+		case 'dashboard':
+			return 25;
+		case 'screen':
+			return 30;
+		case 'layout':
+			return 35;
+		case 'columns':
+			return 40;
+		case 'editor':
+			return 45;
+		case 'menu':
+			return 50;
+		case 'meta':
+			return 55;
+		case 'other':
+			return 60;
+		default:
+			return $priority;
+	}	
+}
+
+add_filter( 'adminizr_section_title', 'set_adminizr_section_title', 10, 2 );
+function set_adminizr_section_title( $title, $section = '' ) {
+
+	// basic check, can also add check against set section names
+	if ( empty( $section ) ) { return $title; } 
+
+	//check section name
+	switch( $section ) {
+	switch( $section ) {
+		case 'roles':
+			return __( 'Roles', 'text' );
+		case 'theme':
+			return __( 'Theme', 'text' );
+		case 'header':
+			return __( 'Header', 'text' );
+		case 'footer':
+			return __( 'Footer', 'text' );
+		case 'dashboard':
+			return __( 'Dashboard', 'text' );
+		case 'screen':
+			return __( 'Screen', 'text' );
+		case 'layout':
+			return __( 'Layout', 'text' );
+		case 'columns':
+			return __( 'Columns', 'text' );
+		case 'editor':
+			return __( 'Editor', 'text' );
+		case 'menu':
+			return __( 'Menu', 'text' );
+		case 'meta':
+			return __( 'Meta', 'text' );
+		case 'other':
+			return __( 'Other', 'text' );
+		default:
+			return $title;
+	}	
+}
+
+Settings: Some settings with default values also have available filters
+
+add_filter ( 'adminizr_footer_bg_color', set_adminizr_foot_bg_color, 10, 1);
+function set_adminizr_foot_bg_color ( $default ) {
+	return '#fff'; // valid hex or rbg value, default ''
+}
+
+add_filter ( 'adminizr_footer_color', set_adminizr_foot_color, 10, 1);
+function set_adminizr_foot_color ( $default ) {
+	return '#fff'; // valid hex or rbg value, default ''
+}
