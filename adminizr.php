@@ -36,7 +36,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Add plugin defines
 define( 'ADMINIZR_VERSION', '1.0.0' );
 define( 'ADMINIZR_WP_VERSION', '4.0' );
-define( 'ADMINIZR_CONTROLS', plugin_dir_path( __FILE__ ) . 'inc/controls' );
+define( 'ADMINIZR_CONTROLS', plugin_dir_path( __FILE__ ) . 'controls' );
+define( 'ADMINIZR_JS', plugin_dir_url( __FILE__ ) . 'controls/js' );
+
+// Force theme mod removal on deavtivate. Todo: add to settings
+define( 'ADMINIZR_DEACTIVATE', TRUE ); 
 
 /**
  * Admin UI Customizer functionality
@@ -70,12 +74,20 @@ final class Adminizr {
     private $text = 'adminizr';
 
     /**
-     * Do the roles allow it?
+     * Allowed user roles 
      *
-     * @var     boolean $is_approved
+     * @var     array $roles
      * @access  private
      */
-    private $is_approved = FALSE;
+    private $roles = array();
+
+    /**
+     * Theme mod list 
+     *
+     * @var     array $mods
+     * @access  private
+     */
+     private $mods = array();
 
     /**
      * Class constructor
@@ -97,9 +109,33 @@ final class Adminizr {
         // Set up customizer menu
         add_action( 'customize_register', array( $this, 'register_menu' ) );
 
-        // Roles settings actions & filters
-        $this->roles();
+        // Initialise plugin actions...
+        add_action( 'plugins_loaded', array( $this, 'check_user_allowed' ) );
+    }
 
+    /*********************************/
+    /**  Core Functionality         **/
+    /*********************************/
+
+    /**
+     * Check user role allowed
+     *
+     * @access public
+     */
+    public function check_user_allowed() {
+
+        // Admin only...
+        if ( !is_admin() ) { return; }
+
+        // Get allowed roles
+        $roles = $this->roles();
+
+        // Get current user roles
+        $user_role = $this->get_user_role();
+
+        //allowed? If not abandon processing
+        if ( empty( $roles ) || !in_array( $user_role, $roles ) ) { return; } 
+        
         // theme settings actions & filters
         $this->theme();
 
@@ -130,10 +166,6 @@ final class Adminizr {
         // other settings actions & filters
         $this->other();
     }
-
-    /*********************************/
-    /**  Core Functionality         **/
-    /*********************************/
 
     /**
      * Load custom controls
@@ -2419,16 +2451,9 @@ final class Adminizr {
 
         // Get allowed roles - csv to array
         $adminizr_roles = get_theme_mod( 'adminizr_roles', '' );
-        if ( empty( $adminizr_roles ) ) { return; }
 
         // Strip out values & remove empty
-        $adminizr_roles = array_values( $adminizr_roles );
-
-        // Get current user roles
-        $user_role = $this->get_user_role();
-
-        //allowed?
-        $this->is_approved = ( in_array( $user_role, $adminizr_roles ) ) ? TRUE : FALSE;
+        return ( empty( $adminizr_roles ) ) ? $adminizr_roles : array_values( $adminizr_roles );
     }
 
     /**
@@ -2436,11 +2461,7 @@ final class Adminizr {
      *
      * @access protected
      */
-    protected function theme() {
-        
-        // role approval check
-        if ( !$this->is_approved ) { return; }
-    }
+    protected function theme() {}
 
     /**
      * Header functions, actions & filters
@@ -2448,9 +2469,6 @@ final class Adminizr {
      * @access protected
      */
     protected function head() {
-
-        // role approval check
-        if ( !$this->is_approved ) { return; }
 
         // Disable admin bar in front-end: Admin
         $hide_header_admin  = (int)get_theme_mod( 'adminizr_header_hide_admin', 0 );
@@ -2486,9 +2504,6 @@ final class Adminizr {
      * @access protected
      */
     protected function foot() {
-
-        // role approval check
-        if ( !$this->is_approved ) { return; }
 
         // hide footer?
         $hide_footer = (int)get_theme_mod( 'adminizr_footer_hide', 0 );
@@ -2530,9 +2545,6 @@ final class Adminizr {
      */
     protected function dashboard() {
 
-        // role approval check
-        if ( !$this->is_approved ) { return; }
-
         // remove welcome widget
         $welcome_widget = (int)get_theme_mod( 'adminizr_dashboard_welcome', 0 );
         if ( $welcome_widget === 1 ) {
@@ -2549,9 +2561,6 @@ final class Adminizr {
      * @access protected
      */
     protected function screen() {
-
-        // role approval check
-        if ( !$this->is_approved ) { return; }
 
         // screen help & options admin?
         $screen_help_opts_admin = (int)get_theme_mod( 'adminizr_screen_help_opts', 0 );
@@ -2631,9 +2640,6 @@ final class Adminizr {
      */
     protected function layout() {
 
-        // role approval check
-        if ( !$this->is_approved ) { return; }
-
         // remove some post & pages metaboxes
         add_action( 'admin_menu', array( $this, 'remove_meta_boxes' ) );
     }
@@ -2645,9 +2651,6 @@ final class Adminizr {
      */
     protected function columns() {
 
-        // role approval check
-        if ( !$this->is_approved ) { return; }
-
         // remove columns as required
         add_action( 'admin_init' , array( $this, 'columns_init' ) );
     }
@@ -2658,9 +2661,6 @@ final class Adminizr {
      * @access protected
      */
     protected function editor() {
-
-        // role approval check
-        if ( !$this->is_approved ) { return; }
 
         // font size
         $font_size = (int)get_theme_mod( 'adminizr_editor_font_size', 0 );
@@ -2700,9 +2700,6 @@ final class Adminizr {
      */
     protected function menu() {
 
-        // Role approval check
-        if ( !$this->is_approved ) { return; }
-
         // Remove menu display
         add_action( 'admin_menu', array( $this, 'remove_menus' ) );
 
@@ -2720,9 +2717,6 @@ final class Adminizr {
      */
     protected function meta() {
         
-        // role approval check
-        if ( !$this->is_approved ) { return; }
-
         // wp_generator meta
         $meta_wp_generator = (int)get_theme_mod( 'adminizr_meta_wp_generator', 0 );
         if ( $meta_wp_generator === 1 ) {
@@ -2760,9 +2754,6 @@ final class Adminizr {
      * @access protected
      */
     protected function other() {
-
-        // role approval check
-        if ( !$this->is_approved ) { return; }
 
         // favicon
         $other_favicon = get_theme_mod( 'adminizr_other_icon', '' );
@@ -2852,7 +2843,7 @@ final class Adminizr {
 
         return $user_role;
     }
-    
+
     /**
      * Samitise roles
      *
@@ -3892,8 +3883,45 @@ final class Adminizr {
     </div> 
 <?php
     }
+
+    /**
+     * Plugin activation
+     *
+     * @access public static
+     */
+    public static function adminizr_activation() {}
+    
+    /**
+     * Plugin deactivation
+     *
+     * @access public static
+     */
+    public static function adminizr_deactivation() {
+    
+        // only if allowed
+        $remove = constant( 'ADMINIZR_DEACTIVATE' );
+        if ( $remove !== TRUE ) { return; }
+
+        // get all theme mods
+        $mods = get_theme_mods();
+
+        // remove mod list
+        foreach ( $mods as $k=>$v ) { 
+
+            // matching mod?
+            if ( preg_match( '/^adminizr/i', $k ) ) {
+                remove_theme_mod( $k ); 
+            }
+        }
+    }
 }
 
+// Set up plugin
 global $adminizr;
 $adminizr = new Adminizr;
+
+// Activation and deactivation hooks
+register_activation_hook( __FILE__, array( 'Adminizr', 'adminizr_activation' ) );
+register_deactivation_hook( __FILE__, array( 'Adminizr', 'adminizr_deactivation' ) );
+
 //end

@@ -21,7 +21,7 @@ class WP_Customize_Control_Checkbox_Multiple extends WP_Customize_Control {
      * @access public
      */
     public function enqueue() {
-        wp_enqueue_script( 'customiser-checkbox-multiple', trailingslashit( get_template_directory_uri() ) . 'inc/controls/js/checkbox-multiple.js', array( 'jquery' ) );
+        wp_enqueue_script( 'customiser-checkbox-multiple', ADMINIZR_JS . '/checkbox-multiple.js', array( 'jquery' ) );
     }
 
     /**

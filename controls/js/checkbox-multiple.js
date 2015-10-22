@@ -21,7 +21,5 @@
         api.instance(hidden).set( chx_val );
         return;
     });
-
-  });
-
+  });  
 })( jQuery );
