@@ -74,22 +74,6 @@ final class Adminizr {
     private $text = 'adminizr';
 
     /**
-     * Allowed user roles 
-     *
-     * @var     array $roles
-     * @access  private
-     */
-    private $roles = array();
-
-    /**
-     * Theme mod list 
-     *
-     * @var     array $mods
-     * @access  private
-     */
-     private $mods = array();
-
-    /**
      * Class constructor
      */
     public function __construct() {
