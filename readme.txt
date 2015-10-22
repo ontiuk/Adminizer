@@ -24,7 +24,7 @@ The Admin Customizer panel will then be available via the Appearance > Customize
 3. Select from the available sections and change the settings as required. Once changed the save & publish button will be available. Select this to save changes. 
 
 == Frequently Asked Questions ==
-Support via github: https://github.com/ontiuk/Loginizr/
+Support via github: https://github.com/ontiuk/Adminizr/
 
 == Upgrade Notice == 
 Download the update and follow the install instructions, overwriting the files. Future versions via WordPress admin UI.
